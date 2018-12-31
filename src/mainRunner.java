@@ -24,7 +24,10 @@ public class mainRunner {
 	public static void main(String[] args) {
 		long sTime = System.currentTimeMillis();
 		String fileName = "horse.mp4";
-		MotionDetector detector = new MotionDetector(fileName, "", "D:",5);
+		MotionDetector detector = new MotionDetector(fileName, "d:\\ProjectResources\\MotionDetector", "d:\\ProjectResources\\MotionDetector",5);
+		for(int i=0;i<5000;i=i+1000){
+			detector.motionFinder(2700, 2715, i);
+		}
 		//detector.motionFinder();
 /*		BufferedImage picture=null;
 		try {
