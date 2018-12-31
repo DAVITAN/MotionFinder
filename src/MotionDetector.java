@@ -81,7 +81,7 @@ public class MotionDetector {
 		String vidToOpen = path + "\\" + fileName;
 		vid.open(vidToOpen);
 		if (!vid.isOpened()) {
-			System.out.println("Error opening video!");
+			System.out.println("Error opening video: " +vidToOpen);
 			System.exit(1);
 		}
 	}
@@ -140,25 +140,16 @@ public class MotionDetector {
 		numOfFrames = (int) vid.get(7);
 		vidFrame=new JFrame();
 		PrintWriter pw =null;
-		int fileCounter=0;
-		File out=null;
 
-		do{
+		outFileName=getAvailableFilename(outFileName);
+		
 		try {
-			if(fileCounter!=0)
-				outFileName=outFileName.substring(0, outFileName.length() - 6)+"_"+Integer.toString(++fileCounter)+".csv";
-			else
-				fileCounter++;
-			out = new File(outFileName);
-			
-			if(!out.exists()){
-				pw = new PrintWriter(new File(outFileName));
-			}
-			outFileName=outFileName.substring(0, outFileName.length() - 4)+"_"+Integer.toString(++fileCounter)+".csv";
-		} catch (FileNotFoundException e) {
-			System.out.println("Output file path not found !");
+			pw = new PrintWriter(new File(outFileName));
+		} catch (FileNotFoundException e1) {
+			Logger(3,"Unable to open output file!");
+			e1.printStackTrace();
 		}
-		}while(pw==null);
+		
 		pw.write("Time in Video,Description,num of contours,size of contour found\n");
 		vid.read(frame);
 		vidFrame.setSize(frame.width(), frame.height());
@@ -277,10 +268,33 @@ public class MotionDetector {
 		
 		String summary[]={("Finished analyzing in " + TimeToString(eTime-sTime) + ".\n" + "Saved to file: " + outFileName),outFileName};
 		Logger(2,summary[0]);
+		pw.write(summary[0]+ "," + "Sensitivity: " + sensitivity);
 		pw.close();
 		return summary;
 	}
-
+	
+	protected String getAvailableFilename(String originalFilename){
+		String finalFilename=null;
+		int fileCount=0;
+		finalFilename=originalFilename;
+		File file =null;
+		file = new File(finalFilename);
+		if(!file.exists())
+			return finalFilename;
+		/*if(fileCount==0){
+			finalFilename=finalFilename.substring(0, finalFilename.length()-4) + "_" + Integer.toString(++fileCount) + ".csv";
+			
+		}*/
+		file=new File(finalFilename);
+		while(file.exists()){
+			fileCount++;
+			finalFilename=finalFilename.substring(0, finalFilename.length()-6) + "_" + Integer.toString(fileCount) + ".csv";
+			file=new File(finalFilename);
+		}
+			
+		
+		return finalFilename;
+	}
 	protected void Logger(int event, String text){
 		switch(event){
 		case 1: 
@@ -288,6 +302,9 @@ public class MotionDetector {
 			break;
 		case 2: 
 			System.out.print("[EVENT] ");
+			break;
+		case 3: 
+			System.out.print("[ERROR] ");
 			break;
 		default:
 			break;
